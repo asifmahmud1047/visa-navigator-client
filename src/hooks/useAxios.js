@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useEffect } from "react";
 import useAuth from "./useAuth";
+import { DotLoader } from 'react-spinners';
 
 const axiosInstance = axios.create({
   baseURL: 'https://visa-navigator-server.vercel.app', // Replace with your actual server URL
