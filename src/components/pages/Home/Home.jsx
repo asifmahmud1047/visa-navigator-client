@@ -5,6 +5,7 @@ import { Autoplay, Navigation, Pagination } from "swiper/modules";
 import { Fade, Slide } from "react-awesome-reveal";
 import { Typewriter } from "react-simple-typewriter";
 import useAxios from "../../../hooks/useAxios";
+import { DotLoader } from 'react-spinners';
 
 // Import Swiper styles
 import "swiper/css";
@@ -15,14 +16,18 @@ const Home = () => {
   const axios = useAxios();
   const [latestVisas, setLatestVisas] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchLatestVisas = async () => {
       try {
+        setLoading(true);
+        setError(null);
         const response = await axios.get("/visas?limit=6&sort=createdAt");
         setLatestVisas(response.data);
       } catch (error) {
         console.error("Error fetching latest visas:", error);
+        setError(error.message);
       } finally {
         setLoading(false);
       }
@@ -183,7 +188,21 @@ const Home = () => {
             </div>
           </Slide>
 
-          {renderLatestVisaCards()}
+          {loading ? (
+            <div className="flex justify-center items-center h-64">
+              <DotLoader color="#4299e1" size={40} />
+            </div>
+          ) : error ? (
+            <div className="text-center text-red-600">
+              <p>Failed to load latest visas. Please try again later.</p>
+            </div>
+          ) : latestVisas.length > 0 ? (
+            renderLatestVisaCards()
+          ) : (
+            <div className="text-center text-gray-600">
+              <p>No visas available at the moment.</p>
+            </div>
+          )}
 
           <div className="text-center mt-12">
             <Link
