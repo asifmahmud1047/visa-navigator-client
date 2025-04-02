@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Fade } from "react-awesome-reveal";
-import useAxios from "../../../hooks/useAxios";
+import useFetch from "../../../hooks/useFetch";
 
 const AllVisas = () => {
-  const axios = useAxios();
+  const fetch = useFetch();
   const [visas, setVisas] = useState([]);
   const [filteredVisas, setFilteredVisas] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -22,9 +22,9 @@ const AllVisas = () => {
   useEffect(() => {
     const fetchAllVisas = async () => {
       try {
-        const response = await axios.get("/visas");
-        setVisas(response.data);
-        setFilteredVisas(response.data);
+        const response = await fetch.get("/visas");
+        setVisas(response);
+        setFilteredVisas(response);
       } catch (error) {
         console.error("Error fetching visas:", error);
       } finally {
@@ -33,7 +33,7 @@ const AllVisas = () => {
     };
 
     fetchAllVisas();
-  }, [axios]);
+  }, [fetch]);
 
   useEffect(() => {
     if (selectedType === "all") {

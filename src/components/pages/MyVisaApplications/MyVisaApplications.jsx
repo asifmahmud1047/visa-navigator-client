@@ -3,11 +3,11 @@ import { FaSearch, FaTimes } from "react-icons/fa";
 import { Fade } from "react-awesome-reveal";
 import Swal from "sweetalert2";
 import toast from "react-hot-toast";
-import useAxios from "../../../hooks/useAxios";
+import useFetch from "../../../hooks/useFetch";
 import useAuth from "../../../hooks/useAuth";
 
 const MyVisaApplications = () => {
-  const axios = useAxios();
+  const fetch = useFetch();
   const { user } = useAuth();
   const [applications, setApplications] = useState([]);
   const [filteredApplications, setFilteredApplications] = useState([]);
@@ -17,9 +17,9 @@ const MyVisaApplications = () => {
   useEffect(() => {
     const fetchMyApplications = async () => {
       try {
-        const response = await axios.get(`/applications/${user.uid}`);
-        setApplications(response.data);
-        setFilteredApplications(response.data);
+        const response = await fetch.get(`/applications/${user.uid}`);
+        setApplications(response);
+        setFilteredApplications(response);
       } catch (error) {
         console.error("Error fetching applications:", error);
         toast.error("Failed to load your applications");
@@ -31,7 +31,7 @@ const MyVisaApplications = () => {
     if (user?.uid) {
       fetchMyApplications();
     }
-  }, [axios, user?.uid]);
+  }, [fetch, user?.uid]);
 
   useEffect(() => {
     if (searchTerm.trim() === "") {
@@ -65,8 +65,8 @@ const MyVisaApplications = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          const response = await axios.delete(`/applications/${id}`);
-          if (response.data.deletedCount > 0) {
+          const response = await fetch.delete(`/applications/${id}`);
+          if (response.deletedCount > 0) {
             // Update local state after successful deletion
             setApplications(applications.filter(app => app._id !== id));
             setFilteredApplications(filteredApplications.filter(app => app._id !== id));

@@ -2,12 +2,12 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Fade } from "react-awesome-reveal";
 import toast from "react-hot-toast";
-import useAxios from "../../../hooks/useAxios";
+import useFetch from "../../../hooks/useFetch";
 import useAuth from "../../../hooks/useAuth";
 
 const VisaDetails = () => {
   const { id } = useParams();
-  const axios = useAxios();
+  const fetch = useFetch();
   const { user } = useAuth();
   const [visa, setVisa] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -24,12 +24,12 @@ const VisaDetails = () => {
   useEffect(() => {
     const fetchVisaDetails = async () => {
       try {
-        const response = await axios.get(`/visas/${id}`);
-        setVisa(response.data);
+        const response = await fetch.get(`/visas/${id}`);
+        setVisa(response);
         setApplyForm(prev => ({
           ...prev,
           email: user?.email || "",
-          fee: response.data.fee
+          fee: response.fee
         }));
       } catch (error) {
         console.error("Error fetching visa details:", error);
@@ -42,7 +42,7 @@ const VisaDetails = () => {
     if (id) {
       fetchVisaDetails();
     }
-  }, [id, axios, user?.email]);
+  }, [id, fetch, user?.email]);
 
   const handleApplyFormChange = (e) => {
     const { name, value } = e.target;
@@ -69,9 +69,9 @@ const VisaDetails = () => {
         userId: user.uid
       };
 
-      const response = await axios.post("/applications", applicationData);
+      const response = await fetch.post("/applications", applicationData);
       
-      if (response.data.insertedId) {
+      if (response.insertedId) {
         toast.success("Application submitted successfully!");
         setShowApplyModal(false);
       }

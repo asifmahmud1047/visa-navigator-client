@@ -1,55 +1,147 @@
 import { createContext, useEffect, useState } from "react";
-import { GoogleAuthProvider, createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, signInWithPopup, signOut, updateProfile } from "firebase/auth";
-import { auth } from "../firebase/firebase.config";
+import toast from "react-hot-toast";
+import useFetch from "../hooks/useFetch";
 
 export const AuthContext = createContext(null);
-const googleProvider = new GoogleAuthProvider();
 
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const fetch = useFetch();
+
+  // Initialize auth state from localStorage
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+    setLoading(false);
+  }, []);
 
   // Create user with email and password
-  const createUser = (email, password) => {
+  const createUser = async (email, password, name, photo) => {
     setLoading(true);
-    return createUserWithEmailAndPassword(auth, email, password);
+    try {
+      const response = await fetch.post('/auth/register', {
+        email,
+        password,
+        name,
+        photo: photo || 'https://i.ibb.co/cLWY2Q9/user.png'
+      });
+      
+      const newUser = {
+        email,
+        displayName: name,
+        photoURL: photo || 'https://i.ibb.co/cLWY2Q9/user.png',
+        uid: response.userId
+      };
+      
+      setUser(newUser);
+      localStorage.setItem('user', JSON.stringify(newUser));
+      toast.success('Registration successful!');
+      return newUser;
+    } catch (error) {
+      toast.error(error.message || 'Registration failed');
+      throw error;
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Login with email and password
-  const signIn = (email, password) => {
+  const signIn = async (email, password) => {
     setLoading(true);
-    return signInWithEmailAndPassword(auth, email, password);
+    try {
+      const response = await fetch.post('/auth/login', {
+        email,
+        password
+      });
+      
+      const loggedInUser = {
+        email,
+        displayName: response.name,
+        photoURL: response.photo || 'https://i.ibb.co/cLWY2Q9/user.png',
+        uid: response.userId
+      };
+      
+      setUser(loggedInUser);
+      localStorage.setItem('user', JSON.stringify(loggedInUser));
+      toast.success('Login successful!');
+      return loggedInUser;
+    } catch (error) {
+      toast.error(error.message || 'Login failed');
+      throw error;
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Login with Google
-  const signInWithGoogle = () => {
+  // Login with Google (simplified)
+  const signInWithGoogle = async () => {
     setLoading(true);
-    return signInWithPopup(auth, googleProvider);
+    try {
+      // For the purpose of this example, we'll simulate a Google login
+      // In a real app, this would be handled differently
+      const response = await fetch.post('/auth/google-login');
+      
+      const googleUser = {
+        email: response.email,
+        displayName: response.name,
+        photoURL: response.photo,
+        uid: response.userId
+      };
+      
+      setUser(googleUser);
+      localStorage.setItem('user', JSON.stringify(googleUser));
+      toast.success('Google login successful!');
+      return googleUser;
+    } catch (error) {
+      toast.error(error.message || 'Google login failed');
+      throw error;
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Logout
-  const logOut = () => {
+  const logOut = async () => {
     setLoading(true);
-    return signOut(auth);
+    try {
+      await fetch.post('/auth/logout');
+      setUser(null);
+      localStorage.removeItem('user');
+      toast.success('Logout successful!');
+    } catch (error) {
+      toast.error(error.message || 'Logout failed');
+      throw error;
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Update user profile
-  const updateUserProfile = (user, name, photo) => {
-    return updateProfile(user, {
-      displayName: name,
-      photoURL: photo
-    });
+  const updateUserProfile = async (name, photo) => {
+    try {
+      await fetch.put('/auth/update-profile', {
+        name,
+        photo
+      });
+      
+      const updatedUser = {
+        ...user,
+        displayName: name,
+        photoURL: photo
+      };
+      
+      setUser(updatedUser);
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      toast.success('Profile updated successfully!');
+      return updatedUser;
+    } catch (error) {
+      toast.error(error.message || 'Profile update failed');
+      throw error;
+    }
   };
-
-  // Observer for user state changes
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, []);
 
   const authInfo = {
     user,

@@ -3,11 +3,11 @@ import { FaEdit, FaTrash } from "react-icons/fa";
 import { Fade } from "react-awesome-reveal";
 import Swal from "sweetalert2";
 import toast from "react-hot-toast";
-import useAxios from "../../../hooks/useAxios";
+import useFetch from "../../../hooks/useFetch";
 import useAuth from "../../../hooks/useAuth";
 
 const MyAddedVisas = () => {
-  const axios = useAxios();
+  const fetch = useFetch();
   const { user } = useAuth();
   const [myVisas, setMyVisas] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -39,8 +39,8 @@ const MyAddedVisas = () => {
   useEffect(() => {
     const fetchMyVisas = async () => {
       try {
-        const response = await axios.get(`/visas/user/${user.email}`);
-        setMyVisas(response.data);
+        const response = await fetch.get(`/visas/user/${user.email}`);
+        setMyVisas(response);
       } catch (error) {
         console.error("Error fetching my visas:", error);
         toast.error("Failed to load your visas");
@@ -52,7 +52,7 @@ const MyAddedVisas = () => {
     if (user?.email) {
       fetchMyVisas();
     }
-  }, [axios, user?.email]);
+  }, [fetch, user?.email]);
 
   const handleDelete = (id) => {
     Swal.fire({
@@ -66,8 +66,8 @@ const MyAddedVisas = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          const response = await axios.delete(`/visas/${id}`);
-          if (response.data.deletedCount > 0) {
+          const response = await fetch.delete(`/visas/${id}`);
+          if (response.deletedCount > 0) {
             // Update local state after successful deletion
             setMyVisas(myVisas.filter(visa => visa._id !== id));
             Swal.fire({
@@ -122,9 +122,9 @@ const MyAddedVisas = () => {
     e.preventDefault();
     
     try {
-      const response = await axios.put(`/visas/${currentVisa._id}`, currentVisa);
+      const response = await fetch.put(`/visas/${currentVisa._id}`, currentVisa);
       
-      if (response.data.modifiedCount > 0) {
+      if (response.modifiedCount > 0) {
         // Update local state with updated visa
         setMyVisas(myVisas.map(visa => 
           visa._id === currentVisa._id ? currentVisa : visa

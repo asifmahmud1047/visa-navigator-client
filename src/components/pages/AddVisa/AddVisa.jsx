@@ -2,11 +2,11 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { Fade } from "react-awesome-reveal";
-import useAxios from "../../../hooks/useAxios";
+import useFetch from "../../../hooks/useFetch";
 import useAuth from "../../../hooks/useAuth";
 
 const AddVisa = () => {
-  const axios = useAxios();
+  const fetch = useFetch();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -100,9 +100,9 @@ const AddVisa = () => {
         added_date: new Date().toISOString()
       };
       
-      const response = await axios.post("/visas", visaData);
+      const response = await fetch.post("/visas", visaData);
       
-      if (response.data.insertedId) {
+      if (response.insertedId) {
         toast.success("Visa added successfully!");
         navigate("/my-added-visas");
       }

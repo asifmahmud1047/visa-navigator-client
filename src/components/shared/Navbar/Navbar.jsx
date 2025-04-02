@@ -9,14 +9,13 @@ const Navbar = () => {
   const { user, logOut } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const handleLogout = () => {
-    logOut()
-      .then(() => {
-        toast.success("Logout successful");
-      })
-      .catch((error) => {
-        toast.error(error.message);
-      });
+  const handleLogout = async () => {
+    try {
+      await logOut();
+      // Toast is already handled in the AuthProvider
+    } catch (error) {
+      toast.error(error.message || "Logout failed");
+    }
   };
 
   const navLinks = (

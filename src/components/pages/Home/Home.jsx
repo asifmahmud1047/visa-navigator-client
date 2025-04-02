@@ -4,7 +4,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Navigation, Pagination } from "swiper/modules";
 import { Fade, Slide } from "react-awesome-reveal";
 import { Typewriter } from "react-simple-typewriter";
-import useAxios from "../../../hooks/useAxios";
+import useFetch from "../../../hooks/useFetch";
 import { DotLoader } from 'react-spinners';
 
 // Import Swiper styles
@@ -13,7 +13,7 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 
 const Home = () => {
-  const axios = useAxios();
+  const fetch = useFetch();
   const [latestVisas, setLatestVisas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -23,8 +23,8 @@ const Home = () => {
       try {
         setLoading(true);
         setError(null);
-        const response = await axios.get("/visas?limit=6&sort=createdAt");
-        setLatestVisas(response.data);
+        const data = await fetch.get("/visas?limit=6&sort=createdAt");
+        setLatestVisas(data);
       } catch (error) {
         console.error("Error fetching latest visas:", error);
         setError(error.message);
@@ -34,7 +34,7 @@ const Home = () => {
     };
 
     fetchLatestVisas();
-  }, [axios]);
+  }, [fetch]);
 
   const banners = [
     {
