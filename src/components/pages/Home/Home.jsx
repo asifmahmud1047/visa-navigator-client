@@ -23,7 +23,7 @@ const Home = () => {
       try {
         setLoading(true);
         setError(null);
-        const data = await fetch.get("/visas?limit=6&sort=createdAt");
+        const data = await fetch.get("/api/visas?limit=6&sort=createdAt");
         setLatestVisas(data);
       } catch (error) {
         console.error("Error fetching latest visas:", error);
